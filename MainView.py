@@ -8,6 +8,7 @@ class MainView:
         self.root = Tk()
         self.root.title("DROM Parser")
         self.root.geometry("640x480")
+        self.root.iconbitmap("static/icon.ico")
 
         self.result_listbox_label = Label(text="Results:")
         self.result_listbox_label.pack()
