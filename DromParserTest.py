@@ -16,15 +16,15 @@ class DromParserTest:
     def __scrape_links(self, pages):
         return self.parser._DromParser__scrape_links(pages)
 
-    def __retrieve_primary_date(self):
-        return self.parser._DromParser__retrieve_primary_date("https://auto.drom.ru/chulym/toyota/avensis/885192694.html")
+    def __retrieve_primary_date(self, link):
+        return self.parser._DromParser__retrieve_primary_date(link)
 
     def run(self):
         pages = self.__get_pages()
         print(pages)
         links = self.__scrape_links(pages)
         print(links)
-        pdate = self.__retrieve_primary_date()
+        pdate = self.__retrieve_primary_date(links[0])
         print(pdate)
         valid_links = self.parser._DromParser__validate_links(links)
         print(valid_links)
