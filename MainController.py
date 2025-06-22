@@ -1,6 +1,10 @@
 import json
+import os.path
+import sys
 import threading
 import webbrowser
+
+from PyInstaller.configure import get_config
 
 from DromParser import DromParser
 from EntryUtils import EntryUtils
@@ -17,6 +21,12 @@ class MainController:
         self.is_parsing: bool = False
         self.parsing_termination: bool = False
         self.listbox_dict: dict[str, str] = {}
+
+    @staticmethod
+    def get_config_path():
+        if getattr(sys, 'frozen', False):
+            return os.path.join(os.path.dirname(sys.executable), "config", "settings.json")
+        return os.path.join("config", "settings.json")
 
     def retrieve_settings(self):
         return Settings(
@@ -46,21 +56,24 @@ class MainController:
                 self.view.result_listbox.insert("end", key)
 
     def onload(self):
-        with open("config/settings.json", 'r') as file:
-            settings = json.load(file)
+        path = self.get_config_path()
+        if os.path.exists(path):
+            with open(path, 'r') as file:
+                settings = json.load(file)
 
-        EntryUtils.set_text(settings['primary_from'], self.view.primary_entry_from)
-        EntryUtils.set_text(settings['primary_to'], self.view.primary_entry_to)
-        EntryUtils.set_text(settings['production_from'], self.view.production_entry_from)
-        EntryUtils.set_text(settings['production_to'], self.view.production_entry_to)
-        EntryUtils.set_text(settings['page'], self.view.page_entry_to)
+            EntryUtils.set_text(settings['primary_from'], self.view.primary_entry_from)
+            EntryUtils.set_text(settings['primary_to'], self.view.primary_entry_to)
+            EntryUtils.set_text(settings['production_from'], self.view.production_entry_from)
+            EntryUtils.set_text(settings['production_to'], self.view.production_entry_to)
+            EntryUtils.set_text(settings['page'], self.view.page_entry_to)
 
-        self.parser = DromParser(self.retrieve_settings())
         self.parser_thread = threading.Thread(target=self.worker, args=())
 
     def onclose(self):
         self.is_parsing = False
         self.parsing_termination = True
+        if self.parser_thread.is_alive():
+            self.parser_thread.join(timeout=0.1)
 
         try:
             settings_dict = self.retrieve_settings().__dict__
@@ -68,10 +81,12 @@ class MainController:
             self.view.root.destroy()
             return
 
-        with open("config/settings.json", "w") as file:
+        os.makedirs(os.path.dirname(self.get_config_path()), exist_ok=True)
+        with open(self.get_config_path(), "w") as file:
             json.dump(settings_dict, file)
 
         self.view.root.destroy()
+        os._exit(0)
 
     def start_button_onclick(self):
         try:
@@ -79,6 +94,9 @@ class MainController:
         except ValueError:
             self.view.status_label.config(text="Wrong values")
             return
+
+        if not self.parser:
+            self.parser = DromParser(settings)
 
         self.view.start_button.config(state="disabled")
         self.view.stop_button.config(state="active")

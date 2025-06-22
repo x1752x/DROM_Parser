@@ -1,3 +1,5 @@
+import os.path
+import sys
 from tkinter import *
 from MainController import MainController
 
@@ -8,8 +10,13 @@ class MainView:
         self.root = Tk()
         self.root.title("DROM Parser")
         self.root.geometry("640x480")
-        self.root.iconbitmap("static/icon.ico")
         self.root.protocol("WM_DELETE_WINDOW", self.controller.onclose)
+
+        if getattr(sys, 'frozen', False):
+            icon_path = os.path.join(sys._MEIPASS, "static", "icon.ico")
+        else:
+            icon_path = "static/icon.ico"
+        self.root.iconbitmap(icon_path)
 
         self.result_listbox_label = Label(text="Results:")
         self.result_listbox_label.pack()
