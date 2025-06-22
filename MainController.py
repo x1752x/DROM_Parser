@@ -4,6 +4,7 @@ import sys
 import threading
 import webbrowser
 
+import requests.exceptions
 from winsound import PlaySound, SND_FILENAME, SND_ASYNC
 from DromParser import DromParser
 from EntryUtils import EntryUtils
@@ -53,7 +54,13 @@ class MainController:
 
             if not self.is_parsing:
                 continue
-            temp = self.parser.parse()
+
+            try:
+                temp = self.parser.parse()
+            except requests.exceptions.ConnectionError:
+                self.stop_button_onclick()
+                self.view.status_label.config(text="Connection error. Try again later.")
+                continue
 
             if not self.is_parsing:
                 continue
