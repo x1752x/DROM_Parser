@@ -20,7 +20,7 @@ class MainController:
         )
 
     def onload(self):
-        with open("settings.json", 'r') as file:
+        with open("config/settings.json", 'r') as file:
             settings = json.load(file)
 
         EntryUtils.set_text(settings['primary_from'], self.view.primary_entry_from)
@@ -36,7 +36,7 @@ class MainController:
             self.view.root.destroy()
             return
 
-        with open("settings.json", "w") as file:
+        with open("config/settings.json", "w") as file:
             json.dump(settings_dict, file)
 
         self.view.root.destroy()
