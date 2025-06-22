@@ -1,0 +1,2 @@
+./.venv/Scripts/activate
+pyinstaller --onefile --windowed --name "DromParser" --icon=static/icon.ico --add-data="static/icon.ico;static" --hidden-import=bs4 --hidden-import=requests --collect-all=bs4 --collect-all=requests --collect-all=dataclasses Main.py
