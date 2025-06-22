@@ -49,7 +49,7 @@ class DromParser:
             except (TypeError, ValueError, IndexError) as _:
                 continue
 
-            if self.settings.primary_from > pdate > self.settings.primary_to:
+            if pdate < self.settings.primary_from or pdate > self.settings.primary_to:
                 continue
 
             result[meta["title"]] = link
