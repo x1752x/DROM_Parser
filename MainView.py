@@ -15,6 +15,7 @@ class MainView:
         self.result_listbox_label.pack()
 
         self.result_listbox = Listbox()
+        self.result_listbox.bind("<Double-Button-1>", self.controller.result_listbox_ondoubleclick)
         self.result_listbox.pack(fill='both')
 
         self.buttons_frame = Frame()

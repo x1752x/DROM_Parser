@@ -1,5 +1,8 @@
 import json
+import threading
+import webbrowser
 
+from DromParser import DromParser
 from EntryUtils import EntryUtils
 from Settings import Settings
 
@@ -9,6 +12,11 @@ class MainController:
         :type view: MainView.MainView
         """
         self.view = view
+        self.parser: DromParser | None = None # will initialize later in onload handler
+        self.parser_thread: threading.Thread | None = None # will initialize later in onload handler
+        self.is_parsing: bool = False
+        self.parsing_termination: bool = False
+        self.listbox_dict: dict[str, str] = {}
 
     def retrieve_settings(self):
         return Settings(
@@ -18,6 +26,24 @@ class MainController:
             production_to = int(self.view.production_entry_to.get()),
             page = int(self.view.page_entry_to.get())
         )
+
+    def worker(self):
+        while True:
+            if self.parsing_termination:
+                break
+
+            if not self.is_parsing:
+                continue
+            self.listbox_dict = self.parser.parse()
+
+            if not self.is_parsing:
+                continue
+            self.view.result_listbox.delete(0, "end")
+
+            if not self.is_parsing:
+                continue
+            for key in self.listbox_dict.keys():
+                self.view.result_listbox.insert("end", key)
 
     def onload(self):
         with open("config/settings.json", 'r') as file:
@@ -29,7 +55,13 @@ class MainController:
         EntryUtils.set_text(settings['production_to'], self.view.production_entry_to)
         EntryUtils.set_text(settings['page'], self.view.page_entry_to)
 
+        self.parser = DromParser(self.retrieve_settings())
+        self.parser_thread = threading.Thread(target=self.worker, args=())
+
     def onclose(self):
+        self.is_parsing = False
+        self.parsing_termination = True
+
         try:
             settings_dict = self.retrieve_settings().__dict__
         except ValueError:
@@ -52,11 +84,23 @@ class MainController:
         self.view.stop_button.config(state="active")
         self.view.status_label.config(text="Parsing...")
 
-        # here we parse...
+        if not self.parser_thread.is_alive():
+            self.parser_thread.start()
+        self.is_parsing = True
+
+    def result_listbox_ondoubleclick(self, event):
+        """
+        :type event: tkinter.Event
+        """
+        selection = self.view.result_listbox.curselection()
+        if not selection:
+            return
+
+        title = self.view.result_listbox.get(selection[0])
+        webbrowser.open(self.listbox_dict[title])
 
     def stop_button_onclick(self):
+        self.is_parsing = False
         self.view.start_button.config(state="active")
         self.view.stop_button.config(state="disabled")
         self.view.status_label.config(text="Stopped")
-
-        # here we stop...
