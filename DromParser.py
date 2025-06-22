@@ -1,7 +1,8 @@
 import json
+import requests
 
 from bs4 import BeautifulSoup
-import requests
+
 
 class DromParser:
     def __init__(self, settings):
