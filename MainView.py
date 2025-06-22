@@ -9,6 +9,7 @@ class MainView:
         self.root.title("DROM Parser")
         self.root.geometry("640x480")
         self.root.iconbitmap("static/icon.ico")
+        self.root.protocol("WM_DELETE_WINDOW", self.controller.onclose)
 
         self.result_listbox_label = Label(text="Results:")
         self.result_listbox_label.pack()
@@ -51,4 +52,5 @@ class MainView:
         self.status_label.pack()
 
     def show(self):
+        self.controller.onload()
         self.root.mainloop()

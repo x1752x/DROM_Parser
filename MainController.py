@@ -1,3 +1,6 @@
+import json
+
+from EntryUtils import EntryUtils
 from Settings import Settings
 
 class MainController:
@@ -15,6 +18,28 @@ class MainController:
             production_to = int(self.view.production_entry_to.get()),
             page = int(self.view.page_entry_to.get())
         )
+
+    def onload(self):
+        with open("settings.json", 'r') as file:
+            settings = json.load(file)
+
+        EntryUtils.set_text(settings['primary_from'], self.view.primary_entry_from)
+        EntryUtils.set_text(settings['primary_to'], self.view.primary_entry_to)
+        EntryUtils.set_text(settings['production_from'], self.view.production_entry_from)
+        EntryUtils.set_text(settings['production_to'], self.view.production_entry_to)
+        EntryUtils.set_text(settings['page'], self.view.page_entry_to)
+
+    def onclose(self):
+        try:
+            settings_dict = self.retrieve_settings().__dict__
+        except ValueError:
+            self.view.root.destroy()
+            return
+
+        with open("settings.json", "w") as file:
+            json.dump(settings_dict, file)
+
+        self.view.root.destroy()
 
     def start_button_onclick(self):
         try:
