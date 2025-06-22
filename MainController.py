@@ -4,6 +4,7 @@ import sys
 import threading
 import webbrowser
 
+from winsound import PlaySound, SND_FILENAME, SND_ASYNC
 from DromParser import DromParser
 from EntryUtils import EntryUtils
 from Settings import Settings
@@ -13,6 +14,7 @@ class MainController:
         """
         :type view: MainView.MainView
         """
+
         self.view = view
         self.parser: DromParser | None = None # will initialize later in onload handler
         self.parser_thread: threading.Thread | None = None # will initialize later in onload handler
@@ -25,6 +27,15 @@ class MainController:
         if getattr(sys, 'frozen', False):
             return os.path.join(os.path.dirname(sys.executable), "config", "settings.json")
         return os.path.join("config", "settings.json")
+
+    @staticmethod
+    def get_notification_path():
+        if getattr(sys, 'frozen', False):
+            base_path = getattr(sys, '_MEIPASS', os.path.dirname(sys.executable))
+        else:
+            base_path = os.path.dirname(os.path.abspath(__file__))
+
+        return os.path.join(base_path, 'static', "notification.wav")
 
     def retrieve_settings(self):
         return Settings(
@@ -42,7 +53,7 @@ class MainController:
 
             if not self.is_parsing:
                 continue
-            self.listbox_dict = self.parser.parse()
+            temp = self.parser.parse()
 
             if not self.is_parsing:
                 continue
@@ -50,8 +61,13 @@ class MainController:
 
             if not self.is_parsing:
                 continue
-            for key in self.listbox_dict.keys():
+            for key in temp.keys():
                 self.view.result_listbox.insert("end", key)
+
+            if temp != self.listbox_dict:
+                self.listbox_dict = temp
+                PlaySound(self.get_notification_path(), SND_FILENAME | SND_ASYNC)
+
 
     def onload(self):
         path = self.get_config_path()
