@@ -4,8 +4,6 @@ import sys
 import threading
 import webbrowser
 
-from PyInstaller.configure import get_config
-
 from DromParser import DromParser
 from EntryUtils import EntryUtils
 from Settings import Settings
