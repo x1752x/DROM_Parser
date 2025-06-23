@@ -17,9 +17,9 @@ class MainController:
         """
 
         self.view = view
-        self.parser: DromParser | None = None # will initialize later in onload handler
-        self.parser_thread: threading.Thread | None = None # will initialize later in onload handler
-        self.is_parsing: bool = False
+        self.drom_parser: DromParser | None = None # will initialize later in onload handler
+        self.drom_parser_thread: threading.Thread | None = None # will initialize later in onload handler
+        self.drom_parsing: bool = False
         self.parsing_termination: bool = False
         self.listbox_dict: dict[str, str] = {}
 
@@ -44,29 +44,31 @@ class MainController:
             primary_to = int(self.view.primary_entry_to.get()),
             production_from = int(self.view.production_entry_from.get()),
             production_to = int(self.view.production_entry_to.get()),
-            page = int(self.view.page_entry_to.get())
+            page = int(self.view.page_entry_to.get()),
+            dromru_allowed=self.view.root.tk.globalgetvar(self.view.dromru_option.cget("variable"))=='1',
+            autoru_allowed=self.view.root.tk.globalgetvar(self.view.autoru_option.cget("variable"))=='1',
         )
 
-    def worker(self):
+    def drom_parser_worker(self):
         while True:
             if self.parsing_termination:
                 break
 
-            if not self.is_parsing:
+            if not self.drom_parsing:
                 continue
 
             try:
-                temp = self.parser.parse()
+                temp = self.drom_parser.parse()
             except requests.exceptions.ConnectionError:
                 self.stop_button_onclick()
                 self.view.status_label.config(text="Connection error. Try again later.")
                 continue
 
-            if not self.is_parsing:
+            if not self.drom_parsing:
                 continue
             self.view.result_listbox.delete(0, "end")
 
-            if not self.is_parsing:
+            if not self.drom_parsing:
                 continue
             for key in temp.keys():
                 self.view.result_listbox.insert("end", key)
@@ -88,13 +90,13 @@ class MainController:
             EntryUtils.set_text(settings['production_to'], self.view.production_entry_to)
             EntryUtils.set_text(settings['page'], self.view.page_entry_to)
 
-        self.parser_thread = threading.Thread(target=self.worker, args=())
+        self.drom_parser_thread = threading.Thread(target=self.drom_parser_worker, args=())
 
     def onclose(self):
-        self.is_parsing = False
+        self.drom_parsing = False
         self.parsing_termination = True
-        if self.parser_thread.is_alive():
-            self.parser_thread.join(timeout=0.1)
+        if self.drom_parser_thread.is_alive():
+            self.drom_parser_thread.join(timeout=0.1)
 
         try:
             settings_dict = self.retrieve_settings().__dict__
@@ -116,16 +118,20 @@ class MainController:
             self.view.status_label.config(text="Wrong values")
             return
 
-        if not self.parser:
-            self.parser = DromParser(settings)
+        if not settings.dromru_allowed and not settings.autoru_allowed:
+            self.view.status_label.config(text="Please, choose at least one source")
+            return
+
+        if settings.dromru_allowed:
+            if not self.drom_parser:
+                self.drom_parser = DromParser(settings)
+            if not self.drom_parser_thread.is_alive():
+                self.drom_parser_thread.start()
+            self.drom_parsing = True
 
         self.view.start_button.config(state="disabled")
         self.view.stop_button.config(state="active")
         self.view.status_label.config(text="Parsing...")
-
-        if not self.parser_thread.is_alive():
-            self.parser_thread.start()
-        self.is_parsing = True
 
     def result_listbox_ondoubleclick(self, event):
         """
@@ -139,7 +145,7 @@ class MainController:
         webbrowser.open(self.listbox_dict[title])
 
     def stop_button_onclick(self):
-        self.is_parsing = False
+        self.drom_parsing = False
         self.view.start_button.config(state="active")
         self.view.stop_button.config(state="disabled")
         self.view.status_label.config(text="Stopped")

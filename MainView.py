@@ -33,6 +33,13 @@ class MainView:
         self.stop_button.grid(row=0, column=1, padx = 5)
         self.buttons_frame.pack(pady = 10)
 
+        self.options_frame = Frame()
+        self.dromru_option = Checkbutton(self.options_frame, text="Drom.RU")
+        self.autoru_option = Checkbutton(self.options_frame, text="Auto.RU")
+        self.dromru_option.grid(row=0, column=0, padx=5)
+        self.autoru_option.grid(row=0, column=1, padx=5)
+        self.options_frame.pack()
+
         self.settings_frame = Frame()
         self.primary_label_from = Label(self.settings_frame, text="Primary registration year from:")
         self.primary_label_to = Label(self.settings_frame, text="Primary registration year to:")

@@ -7,3 +7,5 @@ class Settings:
     production_from: int
     production_to: int
     page: int
+    dromru_allowed: bool
+    autoru_allowed:bool
