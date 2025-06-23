@@ -3,8 +3,8 @@ import os.path
 import sys
 import threading
 import webbrowser
-
 import requests.exceptions
+
 from winsound import PlaySound, SND_FILENAME, SND_ASYNC
 from DromParser import DromParser
 from EntryUtils import EntryUtils

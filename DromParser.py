@@ -1,10 +1,7 @@
 import json
-import threading
-from asyncio import as_completed
-from concurrent.futures.thread import ThreadPoolExecutor
-
 import requests
 
+from concurrent.futures.thread import ThreadPoolExecutor
 from bs4 import BeautifulSoup
 
 
