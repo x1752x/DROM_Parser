@@ -7,7 +7,7 @@ import requests.exceptions
 
 from winsound import PlaySound, SND_FILENAME, SND_ASYNC
 from DromParser import DromParser
-from EntryUtils import EntryUtils
+from ElementUtils import ElementUtils
 from Settings import Settings
 
 class MainController:
@@ -40,13 +40,13 @@ class MainController:
 
     def retrieve_settings(self):
         return Settings(
-            primary_from = int(self.view.primary_entry_from.get()),
-            primary_to = int(self.view.primary_entry_to.get()),
-            production_from = int(self.view.production_entry_from.get()),
-            production_to = int(self.view.production_entry_to.get()),
-            page = int(self.view.page_entry_to.get()),
-            dromru_allowed=self.view.root.tk.globalgetvar(self.view.dromru_option.cget("variable"))=='1',
-            autoru_allowed=self.view.root.tk.globalgetvar(self.view.autoru_option.cget("variable"))=='1',
+            primary_from = ElementUtils.Entry.get_int(self.view.primary_entry_from),
+            primary_to = ElementUtils.Entry.get_int(self.view.primary_entry_to),
+            production_from = ElementUtils.Entry.get_int(self.view.production_entry_from),
+            production_to = ElementUtils.Entry.get_int(self.view.production_entry_to),
+            page = ElementUtils.Entry.get_int(self.view.page_entry_to),
+            dromru_allowed=ElementUtils.Checkbutton.get_bool(self.view.dromru_option),
+            autoru_allowed=ElementUtils.Checkbutton.get_bool(self.view.autoru_option),
         )
 
     def drom_parser_worker(self):
@@ -61,17 +61,17 @@ class MainController:
                 temp = self.drom_parser.parse()
             except requests.exceptions.ConnectionError:
                 self.stop_button_onclick()
-                self.view.status_label.config(text="Connection error. Try again later.")
+                ElementUtils.Label.set_text("Connection error. Try again later.", self.view.status_label)
                 continue
 
             if not self.drom_parsing:
                 continue
-            self.view.result_listbox.delete(0, "end")
+            ElementUtils.Listbox.clear(self.view.result_listbox)
 
             if not self.drom_parsing:
                 continue
             for key in temp.keys():
-                self.view.result_listbox.insert("end", key)
+                ElementUtils.Listbox.append(key, self.view.result_listbox)
 
             if temp != self.listbox_dict:
                 self.listbox_dict = temp
@@ -84,11 +84,11 @@ class MainController:
             with open(path, 'r') as file:
                 settings = json.load(file)
 
-            EntryUtils.set_text(settings['primary_from'], self.view.primary_entry_from)
-            EntryUtils.set_text(settings['primary_to'], self.view.primary_entry_to)
-            EntryUtils.set_text(settings['production_from'], self.view.production_entry_from)
-            EntryUtils.set_text(settings['production_to'], self.view.production_entry_to)
-            EntryUtils.set_text(settings['page'], self.view.page_entry_to)
+            ElementUtils.Entry.set_text(settings['primary_from'], self.view.primary_entry_from)
+            ElementUtils.Entry.set_text(settings['primary_to'], self.view.primary_entry_to)
+            ElementUtils.Entry.set_text(settings['production_from'], self.view.production_entry_from)
+            ElementUtils.Entry.set_text(settings['production_to'], self.view.production_entry_to)
+            ElementUtils.Entry.set_text(settings['page'], self.view.page_entry_to)
 
         self.drom_parser_thread = threading.Thread(target=self.drom_parser_worker, args=())
 
@@ -115,11 +115,11 @@ class MainController:
         try:
             settings = self.retrieve_settings()
         except ValueError:
-            self.view.status_label.config(text="Wrong values")
+            ElementUtils.Label.set_text("Wrong values", self.view.status_label)
             return
 
         if not settings.dromru_allowed and not settings.autoru_allowed:
-            self.view.status_label.config(text="Please, choose at least one source")
+            ElementUtils.Label.set_text("Please, choose at least one source", self.view.status_label)
             return
 
         if settings.dromru_allowed:
@@ -129,9 +129,9 @@ class MainController:
                 self.drom_parser_thread.start()
             self.drom_parsing = True
 
-        self.view.start_button.config(state="disabled")
-        self.view.stop_button.config(state="active")
-        self.view.status_label.config(text="Parsing...")
+        ElementUtils.Button.disable(self.view.start_button)
+        ElementUtils.Button.enable(self.view.stop_button)
+        ElementUtils.Label.set_text("Parsing...", self.view.status_label)
 
     def result_listbox_ondoubleclick(self, event):
         """
@@ -146,6 +146,6 @@ class MainController:
 
     def stop_button_onclick(self):
         self.drom_parsing = False
-        self.view.start_button.config(state="active")
-        self.view.stop_button.config(state="disabled")
-        self.view.status_label.config(text="Stopped")
+        ElementUtils.Button.enable(self.view.start_button)
+        ElementUtils.Button.disable(self.view.stop_button)
+        ElementUtils.Label.set_text("Stopped", self.view.status_label)
