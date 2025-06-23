@@ -20,14 +20,14 @@ class DromParserTest:
         return self.parser._DromParser__retrieve_primary_date(link)
 
     def run(self):
-        pages = self.__get_pages()
+        pages:list [str] = self.__get_pages()
         print(pages)
-        links = self.__scrape_links(pages)
+        links: list[str] = self.__scrape_links(pages)
         print(links)
-        pdate = self.__retrieve_primary_date(links[0])
-        print(pdate)
-        valid_links = self.parser._DromParser__validate_links(links)
+        valid_links: dict[str, str] = self.parser._DromParser__validate_links(links)
         print(valid_links)
+        pdate = self.__retrieve_primary_date(list(valid_links.values())[0])
+        print(pdate)
 
 if __name__ == '__main__':
     DromParserTest().run()
