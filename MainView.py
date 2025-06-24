@@ -34,8 +34,9 @@ class MainView:
         self.buttons_frame.pack(pady = 10)
 
         self.options_frame = Frame()
-        self.dromru_option = Checkbutton(self.options_frame, text="Drom.RU")
-        self.autoru_option = Checkbutton(self.options_frame, text="Auto.RU")
+        self.dromru_option = Checkbutton(self.options_frame, text="Drom.RU", state="disabled")
+        self.dromru_option.select()
+        self.autoru_option = Checkbutton(self.options_frame, text="Auto.RU", state="disabled")
         self.dromru_option.grid(row=0, column=0, padx=5)
         self.autoru_option.grid(row=0, column=1, padx=5)
         self.options_frame.pack()
