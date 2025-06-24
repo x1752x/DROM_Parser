@@ -20,3 +20,7 @@ You will need:
 * See `requirements.txt`
 
 Run the `build.ps1` script and you're done.
+
+# TODO
+- [x] Multithreading (sort of)
+- [ ] AUTO.ru support (avoid captcha)
