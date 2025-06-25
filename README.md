@@ -16,8 +16,7 @@ Unzip the archive with the program to any directory and run the executable.
 
 ## How to build
 You will need:
-* Python 3.13.2 and newer (with tkinter)
-* See `requirements.txt`
+* Python 3.13.2 (with tkinter & pip)
 
 Run the `build.ps1` script and you're done.
 
