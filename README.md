@@ -1,25 +1,22 @@
-# DROM.RU Parser
+# Парсер DROM.RU
 
-This parser scrapes Russian car sales service named <a href="http://drom.ru">DROM</a>. DROM's built-in advanced search allows you to specify many parameters, but not the initial registration date, which is vital for some resellers, for whom this project was originally created.
-This parser solves this problem, in addition to automating the process of searching for the necessary cars. <br>
+Десктопный парсер для DROM.RU <br>
+Умеет в фильтрацию по дате первичной регистрации, чего сам Дром не позволяет. <br>
+Ещё умеет в фильтрацию по дате производства и может просматривать несколько страниц за раз, естественно.
 
-Desktop application, mainly for work under Windows 10. Working on older versions is theoretically possible when compiled with an older version of Python. Working under Linux or macOS is not guaranteed, but is theoretically possible with additional modifications.
-This app has a simple and independent API, which makes it theoretically possible to also create a web and/or mobile version of it.
+## Как запустить
+Понадобится:
+* ОС: Windows 10 как минимум
 
-Parsing is performed using static attributes, but changes in layout of DROM frontend are still possible, which will require fixes. There is no dynamic interaction like Selenium under the hood.
+Распаковать в отдельную папку и запустить исполняемый файл.
 
-## How to run
-You will need:
-* OS: Windows 10 and later
+## Как собрать
+Понадобится:
+* Python 3.13.2 (с предустановленными tkinter & pip)
 
-Unzip the archive with the program to any directory and run the executable.
-
-## How to build
-You will need:
-* Python 3.13.2 (with tkinter & pip)
-
-Run the `build.ps1` script and you're done.
+Запустить скрипт `build.ps1` и всё.
 
 # TODO
-- [x] Multithreading (sort of)
-- [ ] AUTO.ru support (avoid captcha)
+- [x] Многопоточность (насколько это возможно в данном случае)
+- [ ] Поддержка AUTO.ru (яндекс.капча мешает)
+- [ ] Поддержка Avito
